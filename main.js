@@ -23,7 +23,7 @@ class Node{//each node will represent a rectangle
         for (let i = 0; i < 2; i++){
 
             context.lineWidth=this.roadWidth;
-            context.strokeStyle='black';
+            context.strokeStyle='black'; 
             context.beginPath();
             context.moveTo(this.x, this.y + this.height * i);
             context.lineTo(this.x + this.width, this.y + this.height * i);
@@ -41,7 +41,7 @@ class Node{//each node will represent a rectangle
         for (let i = 0; i < 2; i++) {
 
             context.lineWidth=this.roadWidth;
-            context.strokeStyle='black';
+            context.strokeStyle='black'; 
             context.beginPath();
             context.moveTo(this.x + this.width * i, this.y);
             context.lineTo(this.x + this.width * i, this.y + this.height);
@@ -54,32 +54,44 @@ class Node{//each node will represent a rectangle
             context.lineTo(this.x + this.width * i, this.y + this.height);
             context.stroke(); 
         }
-        //draw intersection, substract by roadwidth/2 to put origin at the center
-        context.fillStyle='black';
-        //top-left
-        context.fillRect(this.x - (this.roadWidth/2), this.y - (this.roadWidth/2), this.roadWidth, this.roadWidth);
-        //top-right
-        context.fillRect(this.x - (this.roadWidth/2) + this.width, this.y - (this.roadWidth/2), this.roadWidth, this.roadWidth);
-        //bottom-left
-        context.fillRect(this.x - (this.roadWidth/2), this.y - (this.roadWidth/2) + this.height, this.roadWidth, this.roadWidth);
-        //bottom-right
-        context.fillRect(this.x - (this.roadWidth/2) + this.width, this.y - (this.roadWidth/2) + this.height, this.roadWidth, this.roadWidth);
 
     }
 
-    drawInsideRect(){
-        if(this.level == 3){
-            context.fillStyle='red';
-            context.beginPath();
-            context.moveTo(this.topLeft[0], this.topLeft[1]);
-            context.lineTo(this.topRight[0], this.topRight[1]);
-            context.lineTo(this.bottomRight[0], this.bottomRight[1]);
-            context.lineTo(this.bottomLeft[0], this.bottomLeft[1]);
-            context.closePath();
-            context.fill(); 
-            return; 
-        }
-        context.fillStyle='green';
+    drawIntersection(){
+        context.fillStyle='black';
+        //top-left
+        //context.fillRect(this.x - (this.roadWidth/2), this.y - (this.roadWidth/2), this.roadWidth, this.roadWidth);
+        //top-right
+        //context.fillRect(this.x - (this.roadWidth/2) + this.width, this.y - (this.roadWidth/2), this.roadWidth, this.roadWidth);
+        //bottom-left
+        //context.fillRect(this.x - (this.roadWidth/2), this.y - (this.roadWidth/2) + this.height, this.roadWidth, this.roadWidth);
+        //bottom-right
+        //context.fillRect(this.x - (this.roadWidth/2) + this.width, this.y - (this.roadWidth/2) + this.height, this.roadWidth, this.roadWidth);
+
+        //top-left
+        context.beginPath();
+        context.arc(this.x, this.y, (this.roadWidth/2), Math.PI / 180 * 0, Math.PI / 180 * 360, true);
+        context.closePath();
+        context.fill();
+        //top right
+        context.beginPath();
+        context.arc(this.x + this.width, this.y, (this.roadWidth/2), Math.PI / 180 * 0, Math.PI / 180 * 360, true);
+        context.closePath();
+        context.fill();
+        //bottom left
+        context.beginPath();
+        context.arc(this.x, this.y + this.height, (this.roadWidth/2), Math.PI / 180 * 0, Math.PI / 180 * 360, true);
+        context.closePath();
+        context.fill();
+        //bottom right
+        context.beginPath();
+        context.arc(this.x + this.width, this.y + this.height, (this.roadWidth/2), Math.PI / 180 * 0, Math.PI / 180 * 360, true);
+        context.closePath();
+        context.fill();
+    }
+
+    drawInsideRect(insideColor = "white"){
+        context.fillStyle=insideColor;
         context.beginPath();
         context.moveTo(this.topLeft[0], this.topLeft[1]);
         context.lineTo(this.topRight[0], this.topRight[1]);
@@ -90,93 +102,139 @@ class Node{//each node will represent a rectangle
         
     }
 
-    splitRectRandomly(orientation){
+    splitRectRandomly(){
 
-        if(orientation == "vertical"){
-            //vertically
-            let childWidth, childHeight;
-            const partitionPoint = {
-                x :Math.floor(Math.random() * 
-                ((this.width * 3/4) - this.width/4 + 1)) + this.width/4,
-                y : this.y
-            }
-            childHeight = this.height;// the height is preserved
-
-            //create left rect, become left child
-            childWidth = partitionPoint.x - this.x;
-            this.children.push(new Node(this.x, this.y, 
-                childWidth, childHeight, this.level + 1));
-            
-            //create right rect, become right child
-            childWidth = this.width - partitionPoint.x;
-            this.children.push(new Node(partitionPoint.x,
-                partitionPoint.y, childWidth, childHeight, this.level + 1));
-            
-        }else{
-            //horizontally
-            let childWidth, childHeight;
-            const partitionPoint = {
-                x :this.x,
-                y : Math.floor(Math.random() * 
-                ((this.height * 3/4) - this.height/4 + 1)) + this.height/4
-            }
-            childWidth = this.width // the width is preserve
-
-            //create top rect, become left child
-            childHeight = partitionPoint.y - this.y;
-            this.children.push(new Node(this.x, this.y, 
-                childWidth, childHeight, this.level + 1));
-            
-            //create bottom rect, become right child
-            childHeight = this.height - partitionPoint.y;
-            this.children.push(new Node(partitionPoint.x,
-                partitionPoint.y, childWidth, childHeight, this.level + 1));
+        let orientation = Math.floor(Math.random() * (10 - 1 + 1)) + 1;
+        const partitionPoint = {
+            x : null,
+            y : null
         }
-        
-            
-        
 
-        
+        if (orientation > 5){//split vertically
+            //make the first split to be always at the center
+            if(this.level == 0){
+                partitionPoint.x = (this.x + this.x + this.width)/2;
+            }else{
+                partitionPoint.x = Math.floor(Math.random() * ((this.x + this.width) - this.x + 1)) + this.x;
+            }
+            partitionPoint.y = this.y;
+
+            let leftChildWidth = partitionPoint.x - this.x;
+            let rightChildWidth = this.x + this.width - partitionPoint.x;
+
+            //check if they meet the MIN_SIZE
+            if (leftChildWidth < MIN_SIZE || rightChildWidth < MIN_SIZE || this.height < MIN_SIZE) {
+                return;
+            }
+            //left child, left rect
+            this.children.push(
+                new Node(
+                    this.x, 
+                    this.y, 
+                    leftChildWidth, 
+                    this.height, 
+                    this.level + 1));
+
+            //right child, right rect
+            this.children.push(
+                new Node(
+                    partitionPoint.x, 
+                    partitionPoint.y, 
+                    rightChildWidth, 
+                    this.height, 
+                    this.level + 1));
+        } else {
+            partitionPoint.x = this.x;
+            if (this.level == 0) {
+                partitionPoint.y = (this.y + this.y + this.height)/2;
+            } else {
+               partitionPoint.y = Math.floor(Math.random() * ((this.y + this.width) - this.y + 1)) + this.y; 
+            }
+            
+
+            let leftChildHeight = partitionPoint.y - this.y;
+            let rightChildHeight = this.y + this.height - partitionPoint.y;
+            
+            //check if they meet the MIN_SIZE
+            if (leftChildHeight < MIN_SIZE || rightChildHeight < MIN_SIZE || this.width < MIN_SIZE) {
+                return;
+            }
+            //left child, top rect
+            this.children.push(
+                new Node(
+                    this.x, 
+                    this.y, 
+                    this.width, 
+                    leftChildHeight, 
+                    this.level + 1));
+
+            //right child, bottom rect
+            this.children.push(
+                new Node(
+                    partitionPoint.x, 
+                    partitionPoint.y, 
+                    this.width, 
+                    rightChildHeight, 
+                    this.level + 1));
+        }
+    }
+}
+
+class BSPTree{
+    constructor(rootNode){
+        this.root = rootNode;
+    }
+
+    expandRoot(){
+        console.log("BSP Tree Structure : ")
+        const splitQueue = [this.root];
+
+        //true if splitQueue is not empty
+        while (splitQueue.length) {
+            let temp = splitQueue.shift();
+            temp.splitRectRandomly();
+            if (temp.children.length) {
+                console.log( "level = " + (temp.level + 1));
+                console.log(temp.children);
+                splitQueue.push(...temp.children);
+            }
+        }
+    }
+
+    getLeaves(){
+        const treeLeaves = [];
+        const traversalOrder = [this.root];
+
+        while (traversalOrder.length) {
+            let temp = traversalOrder.shift();
+            if (temp.children.length) {
+                traversalOrder.push(...temp.children);
+            }else{
+                treeLeaves.push(temp);
+            }
+        }
+        return treeLeaves;
     }
 }
 
 const canvas = document.getElementById("myCanvas");
 const context = canvas.getContext('2d');
-canvas.width = 600;
-canvas.height = 600;
+canvas.width = 1200;
+canvas.height = 1200;
+const MIN_SIZE = 70; // min size of rect is 70 x 70 px
 
-let randomNumber = Math.floor(Math.random() * 10) + 1;
-let split = "";
-if (randomNumber < 5) {
-    split = "vertical"; 
-}else{
-    split = "horizontal";
+const root = new Node(0, 0, 1200, 1200, 0);
+
+const tree = new BSPTree(root);
+tree.expandRoot();
+const treeLeaves = tree.getLeaves();
+console.log("tree leaves : ")
+console.log(treeLeaves);
+
+for (const leaf of treeLeaves) {
+    leaf.drawRect();
 }
 
-//create root node, level 0
-const root = new Node(0, 0, canvas.width, canvas.height, level = 0);
-//create level 1
-root.splitRectRandomly(split);
-
-//create level 2
-if(split == "vertical"){
-    root.children[0].splitRectRandomly("horizontal")
-    root.children[1].splitRectRandomly("horizontal")
-}else{
-    root.children[0].splitRectRandomly("vertical")
-    root.children[1].splitRectRandomly("vertical")
+for (const leaf of treeLeaves) {
+    leaf.drawIntersection();
 }
-
-root.children[1].children[1].drawRect();//level 2
-root.children[1].children[0].drawRect();//level 2
-root.children[0].children[0].drawRect();//level 2
-root.children[0].children[1].drawRect();//level 2
-
-root.children[1].children[1].drawInsideRect();//level 2
-root.children[1].children[0].drawInsideRect();//level 2
-root.children[0].children[0].drawInsideRect();//level 2
-root.children[0].children[1].drawInsideRect();//level 2
-
-
-//panjang dan lebar minimal 40
-const child = new Node(300, 150, 40, 40, 1);
