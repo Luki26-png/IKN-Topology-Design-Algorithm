@@ -9,12 +9,18 @@ class Node{//each node will represent a rectangle
         this.children = [];
         //inside rect coordinate, index 0 =x, 1 = y
         this.topLeft = [this.x + this.roadWidth/2, this.y + this.roadWidth/2];
+
         this.topRight = [this.x + this.roadWidth/2 + this.width - this.roadWidth,
         this.y + this.roadWidth/2];
+
         this.bottomRight = [this.x + this.roadWidth/2 + this.width - this.roadWidth,
         this.y + this.roadWidth/2 + this.height- this.roadWidth];
+
         this.bottomLeft = [this.x + this.roadWidth/2, 
         this.y + this.roadWidth/2 + this.height- this.roadWidth];
+
+        this.insideWidth = this.topRight[0] - this.topLeft[0];
+        this.insideHeight = this.bottomLeft[1] - this.topLeft[1];
     }
 
     drawRect(){
@@ -90,7 +96,7 @@ class Node{//each node will represent a rectangle
         context.fill();
     }
 
-    drawInsideRect(insideColor = "white"){
+    drawInsideRect(insideColor = "green"){
         context.fillStyle=insideColor;
         context.beginPath();
         context.moveTo(this.topLeft[0], this.topLeft[1]);
@@ -99,7 +105,53 @@ class Node{//each node will represent a rectangle
         context.lineTo(this.bottomLeft[0], this.bottomLeft[1]);
         context.closePath();
         context.fill();  
-        
+
+        //separate rect into bins
+        const binXPosArray = [];
+        let binPos = this.topLeft[0];
+        while (binPos < this.topRight[0]) {
+            binXPosArray.push(binPos);
+            binPos += 80;
+        }
+
+        for (const linePos of binXPosArray) {
+            context.fillStyle='grey';
+            context.fillRect(linePos, this.topLeft[1], 2, this.insideHeight); 
+        }
+
+        //next-fit algorithm
+        const buildingArray = [bigBuilding, mediumBuilding, smallBuilding, house];
+        for (let currentIndex = 0; currentIndex < binXPosArray.length - 1; currentIndex++){
+            let currentX = binXPosArray[currentIndex];
+            let currentY = this.topLeft[1];
+            
+            while (currentY < this.bottomLeft[1]) {
+                let randomIndex = Math.floor(Math.random() * (4 - 1 + 1)) + 1 - 1;
+                let buildingToDraw = buildingArray[randomIndex];
+                if (currentY + buildingToDraw.height > this.bottomLeft[1]) {
+                    break;
+                }
+                if(currentX + buildingToDraw.width > binXPosArray[currentIndex + 1]){
+                    continue;
+                }
+                buildingToDraw.drawBuilding(currentX, currentY);
+                currentY += buildingToDraw.height;
+                }
+            /*//there's a bug
+                while (currentY < this.bottomLeft[1]) {
+                    let randomIndex = Math.floor(Math.random() * (4 - 1 + 1)) + 1 - 1;
+                    let buildingToDraw = buildingArray[randomIndex];
+                    if (currentY + buildingToDraw.height > this.bottomRight[1]) {
+                        break;
+                    }
+                    if(currentX + buildingToDraw.width > this.bottomRight[0]){
+                        continue;
+                    }
+                    buildingToDraw.drawBuilding(currentX, currentY);
+                    currentY += buildingToDraw.height;
+                }
+            }*/
+        } 
     }
 
     splitRectRandomly(){
@@ -217,6 +269,46 @@ class BSPTree{
     }
 }
 
+const bigBuilding = {
+    width : 80,
+    height : 40,
+    buildings : [document.getElementById("big-building-1"),
+                document.getElementById("big-building-2"),
+                document.getElementById("big-building-3")],
+    drawBuilding : function(x, y){
+        const randomNumber = Math.floor(Math.random() * (3 - 1 + 1)) + 1;
+        context.drawImage(this.buildings[randomNumber-1], x, y);        
+    }
+}
+
+const mediumBuilding = {
+    width : 40,
+    height : 24,
+    buildings : document.getElementById("medium-building"),
+    drawBuilding : function(x, y){
+        context.drawImage(this.buildings, x, y);        
+    }
+}
+
+const smallBuilding = {
+    width : 16,
+    height : 16,
+    buildings : document.getElementById("small-building"),
+    drawBuilding : function(x, y){
+        context.drawImage(this.buildings, x, y);        
+    }
+}
+
+const house = {
+    width : 8,
+    height : 16,
+    buildings : document.getElementById("house"),
+    drawBuilding : function(x, y){
+        context.drawImage(this.buildings, x, y);        
+    }
+}
+
+//main entry
 const canvas = document.getElementById("myCanvas");
 const context = canvas.getContext('2d');
 canvas.width = 1200;
@@ -224,6 +316,7 @@ canvas.height = 1200;
 const MIN_SIZE = 70; // min size of rect is 70 x 70 px
 
 const root = new Node(0, 0, 1200, 1200, 0);
+
 
 const tree = new BSPTree(root);
 tree.expandRoot();
@@ -237,4 +330,8 @@ for (const leaf of treeLeaves) {
 
 for (const leaf of treeLeaves) {
     leaf.drawIntersection();
+}
+
+for (const leaf of treeLeaves) {
+    leaf.drawInsideRect();
 }
