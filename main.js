@@ -309,29 +309,36 @@ const house = {
 }
 
 //main entry
+
 const canvas = document.getElementById("myCanvas");
 const context = canvas.getContext('2d');
 canvas.width = 1200;
 canvas.height = 1200;
 const MIN_SIZE = 70; // min size of rect is 70 x 70 px
 
-const root = new Node(0, 0, 1200, 1200, 0);
+function createMap(){
+    const root = new Node(0, 0, 1200, 1200, 0);
+    const tree = new BSPTree(root);
+    tree.expandRoot();
+    const treeLeaves = tree.getLeaves();
+    console.log("tree leaves : ")
+    console.log(treeLeaves);
 
+    for (const leaf of treeLeaves) {
+        leaf.drawRect();
+    }
 
-const tree = new BSPTree(root);
-tree.expandRoot();
-const treeLeaves = tree.getLeaves();
-console.log("tree leaves : ")
-console.log(treeLeaves);
+    for (const leaf of treeLeaves) {
+        leaf.drawIntersection();
+    }
 
-for (const leaf of treeLeaves) {
-    leaf.drawRect();
+    for (const leaf of treeLeaves) {
+        leaf.drawInsideRect();
+    }   
 }
 
-for (const leaf of treeLeaves) {
-    leaf.drawIntersection();
-}
 
-for (const leaf of treeLeaves) {
-    leaf.drawInsideRect();
-}
+
+
+
+
