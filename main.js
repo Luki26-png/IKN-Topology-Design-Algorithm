@@ -131,8 +131,8 @@ class Node{//each node will represent a rectangle
                 if (currentY + buildingToDraw.height > this.bottomLeft[1]) {
                     break;
                 }
-                if(currentX + buildingToDraw.width > binXPosArray[currentIndex + 1]){
-                    continue;
+                if(currentX + buildingToDraw.width > this.topRight[0]){
+                    break;
                 }
                 buildingToDraw.drawBuilding(currentX, currentY);
                 currentY += buildingToDraw.height;
