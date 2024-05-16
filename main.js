@@ -121,7 +121,7 @@ class Node{//each node will represent a rectangle
 
         //next-fit algorithm
         const buildingArray = [bigBuilding, mediumBuilding, smallBuilding, house];
-        for (let currentIndex = 0; currentIndex < binXPosArray.length - 1; currentIndex++){
+        for (let currentIndex = 0; currentIndex < binXPosArray.length; currentIndex++){
             let currentX = binXPosArray[currentIndex];
             let currentY = this.topLeft[1];
             
