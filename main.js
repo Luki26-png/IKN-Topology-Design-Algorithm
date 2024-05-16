@@ -105,7 +105,7 @@ class Node{//each node will represent a rectangle
         context.lineTo(this.bottomLeft[0], this.bottomLeft[1]);
         context.closePath();
         context.fill();  
-
+        
         //separate rect into bins
         const binXPosArray = [];
         let binPos = this.topLeft[0];
@@ -121,11 +121,12 @@ class Node{//each node will represent a rectangle
 
         //next-fit algorithm
         const buildingArray = [bigBuilding, mediumBuilding, smallBuilding, house];
-        for (let currentIndex = 0; currentIndex < binXPosArray.length; currentIndex++){
+        for (let currentIndex = 0; currentIndex < binXPosArray.length ; currentIndex++){
             let currentX = binXPosArray[currentIndex];
             let currentY = this.topLeft[1];
             
             while (currentY < this.bottomLeft[1]) {
+                
                 let randomIndex = Math.floor(Math.random() * (4 - 1 + 1)) + 1 - 1;
                 let buildingToDraw = buildingArray[randomIndex];
                 if (currentY + buildingToDraw.height > this.bottomLeft[1]) {
@@ -137,20 +138,6 @@ class Node{//each node will represent a rectangle
                 buildingToDraw.drawBuilding(currentX, currentY);
                 currentY += buildingToDraw.height;
                 }
-            /*//there's a bug
-                while (currentY < this.bottomLeft[1]) {
-                    let randomIndex = Math.floor(Math.random() * (4 - 1 + 1)) + 1 - 1;
-                    let buildingToDraw = buildingArray[randomIndex];
-                    if (currentY + buildingToDraw.height > this.bottomRight[1]) {
-                        break;
-                    }
-                    if(currentX + buildingToDraw.width > this.bottomRight[0]){
-                        continue;
-                    }
-                    buildingToDraw.drawBuilding(currentX, currentY);
-                    currentY += buildingToDraw.height;
-                }
-            }*/
         } 
     }
 
@@ -318,6 +305,9 @@ const MIN_SIZE = 70; // min size of rect is 70 x 70 px
 
 function createMap(){
     const root = new Node(0, 0, 1200, 1200, 0);
+    root.drawRect();
+    root.drawIntersection();
+    
     const tree = new BSPTree(root);
     tree.expandRoot();
     const treeLeaves = tree.getLeaves();
@@ -336,9 +326,3 @@ function createMap(){
         leaf.drawInsideRect();
     }   
 }
-
-
-
-
-
-
