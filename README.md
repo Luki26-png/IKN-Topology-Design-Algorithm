@@ -8,5 +8,6 @@ Nama Anggota Kelompok:
 
 2. Danyi Aprizal(2201020027)
 
-See the current progress:
+Final Result:
+
 https://luki26-png.github.io/IKN-Topology-Design-Algorithm/
