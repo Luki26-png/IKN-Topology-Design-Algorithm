@@ -11,3 +11,5 @@ Nama Anggota Kelompok:
 Final Result:
 
 https://luki26-png.github.io/IKN-Topology-Design-Algorithm/
+
+Terimakasih
